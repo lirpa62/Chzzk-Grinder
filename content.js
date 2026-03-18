@@ -2389,8 +2389,15 @@ function injectUidToProfilePopup(popupNode) {
   const historyDiv = popupNode.querySelector(
     'div[class*="live_chatting_popup_profile_history"]'
   );
+  const alternateHistoryDiv = popupNode.querySelector(
+    'button[class*="live_chatting_popup_profile_information"]'
+  );
 
-  if (historyDiv && !historyDiv.querySelector(".chzzk-profile-uid")) {
+  if (
+    (historyDiv && !historyDiv.querySelector(".chzzk-profile-uid")) ||
+    (alternateHistoryDiv &&
+      !alternateHistoryDiv.querySelector(".chzzk-profile-uid"))
+  ) {
     const uid = lastProfileData.userIdHash;
 
     // UID 표시 요소 생성
@@ -2409,8 +2416,11 @@ function injectUidToProfilePopup(popupNode) {
     // 복사 기능
     uidRow.querySelector(".chzzk-uid-copy-target").onclick = () => copyUid(uid);
 
-    // 첫 번째 자식으로 추가
-    historyDiv.prepend(uidRow);
+    if (historyDiv) {
+      historyDiv.prepend(uidRow); // 히스토리 맨 위에 삽입
+    } else if (!historyDiv && alternateHistoryDiv) {
+      alternateHistoryDiv.parentElement.append(uidRow);
+    }
   }
 }
 
