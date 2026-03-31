@@ -7,6 +7,13 @@
 [![Naver Whale Store](https://img.shields.io/badge/Whale-설치하기-00C73C?style=for-the-badge&logo=naver&logoColor=white)](https://store.whale.naver.com/detail/bfaglljbekhljiednpbkealphfohdmei)
 [![Firefox Add-ons](https://img.shields.io/badge/Firefox-설치하기-FF7139?style=for-the-badge&logo=firefoxbrowser&logoColor=white)](https://addons.mozilla.org/ko/firefox/addon/%EC%B9%98%EC%A6%88-%EA%B7%B8%EB%9D%BC%EC%9D%B8%EB%8D%94-%EC%B9%98%EC%A7%80%EC%A7%81-%EC%95%85%EC%84%B1-%EB%8C%93%EA%B8%80-%EC%B0%A8%EB%8B%A8-%EB%8F%84%EC%9A%B0%EB%AF%B8/)
 
+<br>
+
+![Chrome Web Store Users](https://img.shields.io/chrome-web-store/users/igiaeniadpmojahgllpodpfmedblaalb?style=for-the-badge&logo=googlechrome&logoColor=white&color=4285F4&label=Chrome%20Users)
+[![Edge Add-on Users](https://img.shields.io/badge/dynamic/json?style=for-the-badge&logo=microsoftedge&label=Edge%20Users&query=%24.activeInstallCount&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fiicbandohfckchnhbempcgljebiifikf)](https://microsoftedge.microsoft.com/addons/detail/%EC%B9%98%EC%A6%88-%EA%B7%B8%EB%9D%BC%EC%9D%B8%EB%8D%94-%EC%B9%98%EC%A7%80%EC%A7%81-%EC%95%85%EC%84%B1-%EB%8C%93%EA%B8%80-%EC%B0%A8%EB%8B%A8-%EB%8F%84%EC%9A%B0/iicbandohfckchnhbempcgljebiifikf)
+[![Naver Whale Users](https://img.shields.io/endpoint?style=for-the-badge&logo=naver&logoColor=white&url=https%3A%2F%2Fgist.githubusercontent.com%2Flirpa62%2F68ddccad10f8831b927201fe5d9ef8c1%2Fraw%2FChzzk-Grinder-Users.json)](https://store.whale.naver.com/detail/bfaglljbekhljiednpbkealphfohdmei)
+![Mozilla Add-on Users](https://img.shields.io/amo/users/%EC%B9%98%EC%A6%88-%EA%B7%B8%EB%9D%BC%EC%9D%B8%EB%8D%94-%EC%B9%98%EC%A7%80%EC%A7%81-%EC%95%85%EC%84%B1-%EB%8C%93%EA%B8%80-%EC%B0%A8%EB%8B%A8-%EB%8F%84%EC%9A%B0%EB%AF%B8?style=for-the-badge&logo=firefoxbrowser&logoColor=white&color=FF7139&label=Firefox%20Users)
+
 </div>
 
 **악성 댓글은 갈아버리세요! UID 확인부터 증거 수집(PDF)까지, 치지직을 더 깨끗하게 즐기는 방법.**
