@@ -1875,8 +1875,9 @@ function injectChatBlockButton(popupNode) {
   if (!lastProfileData) return;
 
   // 버튼들이 모여있는 리스트 컨테이너 찾기
+  // (라이브: #aside-chatting 하위 / 다시보기: 다른 컨테이너 → popupNode 자체에서 검색)
   const btnList = popupNode.querySelector(
-    "#aside-chatting div[class*='live_chatting_popup_profile_list']"
+    "div[class*='live_chatting_popup_profile_list']"
   );
   if (!btnList) return;
 
@@ -1884,8 +1885,8 @@ function injectChatBlockButton(popupNode) {
   if (btnList.querySelector(".chzzk-chat-block-btn")) {
     // 이미 있다면 텍스트만 업데이트하고 종료
     const existingBtn = btnList.querySelector(".chzzk-chat-block-btn");
-    const isBlocked = blockedChatUsersCache.includes(
-      lastProfileData.userIdHash
+    const isBlocked = blockedChatUsersCache.some(
+      (u) => u.uid === lastProfileData.userIdHash
     );
     existingBtn.innerHTML = getBlockBtnHtml(isBlocked);
     return;
@@ -1893,7 +1894,7 @@ function injectChatBlockButton(popupNode) {
 
   const uid = lastProfileData.userIdHash;
   const nickname = lastProfileData.nickname || "???";
-  const isBlocked = blockedChatUsersCache.includes(uid);
+  const isBlocked = blockedChatUsersCache.some((u) => u.uid === uid);
 
   // 버튼 생성
   const blockBtn = document.createElement("button");

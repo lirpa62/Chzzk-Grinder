@@ -45,8 +45,8 @@
         }
       }
 
-      // 2. 프로필 카드 API 감지
-      if (url.includes("/profile-card") && url.includes("chatType=STREAMING")) {
+      // 2. 프로필 카드 API 감지 (라이브: STREAMING, 다시보기: VIDEO 등 모든 chatType 허용)
+      if (url.includes("/profile-card") && url.includes("chatType=")) {
         try {
           const data = JSON.parse(this.responseText);
           if (data.code === 200 && data.content) {
@@ -108,22 +108,74 @@
     return data;
   };
 
-  // 3. 클립 메타데이터 API 감지
+  // VOD 다시보기 채팅 API URL 매칭 정규식
+  // 예: https://api.chzzk.naver.com/service/v1/videos/12345/chats?...
+  const VOD_CHAT_URL_RE =
+    /^https:\/\/api\.chzzk\.naver\.com\/service\/v\d+\/videos\/\d+\/chats(?:[/?#]|$)/i;
+
+  // VOD 채팅 응답에서 차단 유저 메시지 필터링
+  function filterVodChatResponse(data) {
+    if (!data || typeof data !== "object") return;
+    const content = data.content;
+    if (!content || typeof content !== "object") return;
+
+    if (Array.isArray(content.previousVideoChats)) {
+      content.previousVideoChats = content.previousVideoChats.filter(
+        (msg) => msg && !blockedChatUsers.has(msg.userIdHash)
+      );
+    }
+    if (Array.isArray(content.videoChats)) {
+      content.videoChats = content.videoChats.filter(
+        (msg) => msg && !blockedChatUsers.has(msg.userIdHash)
+      );
+    }
+  }
+
+  function isVodChatRequestUrl(url) {
+    return VOD_CHAT_URL_RE.test(String(url || ""));
+  }
+
+  function resolveRequestUrl(input) {
+    if (typeof input === "string") return input;
+    if (input && typeof input.url === "string") return input.url;
+    return "";
+  }
+
+  // 3. 클립 메타데이터 + VOD 채팅 API 감지 (fetch)
   const originalFetch = window.fetch;
 
   window.fetch = async function (...args) {
-    // 원본 요청 수행
-    const response = await originalFetch(...args);
+    const requestUrl = resolveRequestUrl(args[0]);
+    const isVodChat = isVodChatRequestUrl(requestUrl);
 
-    // 응답 복제 전에 URL부터 확인
+    // VOD 채팅: 응답 본문을 직접 가로채서 차단 유저 메시지 제거 후 새 Response 반환
+    if (isVodChat) {
+      const response = await originalFetch.apply(this, args);
+      try {
+        const cloned = response.clone();
+        const data = await cloned.json();
+        filterVodChatResponse(data);
+
+        return new Response(JSON.stringify(data), {
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+        });
+      } catch (e) {
+        // 파싱 실패 시 원본 응답 그대로 반환
+        return response;
+      }
+    }
+
+    // 그 외 요청: 기존 로직 유지
+    const response = await originalFetch.apply(this, args);
+
     if (
       response.url &&
       response.url.includes("/shortformhub") &&
       response.url.includes("/card") &&
       response.url.includes("seedType=SPECIFIC")
     ) {
-      // 타겟 API인 경우에만 복제(clone) 수행
-      // clone()을 해야 원본 사이트의 동작(body 읽기)을 방해하지 않고 읽을 수 있음
       try {
         const clone = response.clone();
         clone
@@ -138,25 +190,64 @@
                   clipId: data.card.content?.contentId || "",
                 };
 
-                // content.js로 데이터 전송
                 window.postMessage(
                   { type: "CHZZK_CLIP_METADATA", payload: payload },
                   "*"
                 );
               }
-            } catch (e) {
-              // 내부 처리 에러도 무시
-            }
+            } catch (e) {}
           })
-          .catch(() => {
-            // JSON 파싱 실패도 완전히 무시
-          });
-      } catch (e) {
-        // clone 실패 시에도 무시
-      }
+          .catch(() => {});
+      } catch (e) {}
     }
 
-    // 원본 응답은 건드리지 않고 즉시 반환
     return response;
   };
+
+  // 4. VOD 채팅 API 감지 (XHR)
+  const OriginalXHR = window.XMLHttpRequest;
+  if (typeof OriginalXHR === "function") {
+    const xhrOpen = OriginalXHR.prototype.open;
+    const xhrSend = OriginalXHR.prototype.send;
+
+    OriginalXHR.prototype.open = function (method, url) {
+      this.__chzzkVodChatUrl = isVodChatRequestUrl(url) ? String(url) : "";
+      return xhrOpen.apply(this, arguments);
+    };
+
+    OriginalXHR.prototype.send = function () {
+      if (this.__chzzkVodChatUrl) {
+        // responseText를 가로채 필터링된 JSON으로 덮어쓴다.
+        // getter 재정의로 원본 응답을 건드리지 않고 sites가 읽는 값만 교체.
+        const xhr = this;
+        xhr.addEventListener("load", function () {
+          try {
+            const raw = xhr.responseText;
+            if (!raw) return;
+            const data = originalJSONParse(raw);
+            filterVodChatResponse(data);
+            const filteredText = JSON.stringify(data);
+
+            Object.defineProperty(xhr, "responseText", {
+              configurable: true,
+              get() {
+                return filteredText;
+              },
+            });
+            Object.defineProperty(xhr, "response", {
+              configurable: true,
+              get() {
+                // responseType이 'json'인 경우 객체 반환
+                if (xhr.responseType === "json") return data;
+                return filteredText;
+              },
+            });
+          } catch (e) {
+            // 실패 시 원본 응답 그대로 노출
+          }
+        });
+      }
+      return xhrSend.apply(this, arguments);
+    };
+  }
 })();

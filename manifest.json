@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "치즈 그라인더 - 치지직 악성 댓글 차단 도우미",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "악성 댓글은 갈아버리세요! UID 확인부터 증거 수집(PDF)까지, 치지직을 더 깨끗하게 즐기는 방법",
   "permissions": ["scripting", "storage", "downloads", "unlimitedStorage"],
   "host_permissions": [
